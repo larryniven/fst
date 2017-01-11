@@ -1,7 +1,7 @@
 #ifndef FST_ALGO_H
 #define FST_ALGO_H
 
-#incluce "fst/fst.h"
+#include "fst/fst.h"
 
 namespace fst {
 
@@ -93,6 +93,10 @@ namespace fst {
         void merge(fst const& f, std::vector<vertex> const& order);
 
     };
+
+    template <class fst_type>
+    std::vector<typename fst_type::edge> shortest_path(fst_type const& f,
+        std::vector<typename fst_type::vertex> const& topo_order);
 
 }
 

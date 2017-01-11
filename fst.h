@@ -73,6 +73,109 @@ namespace fst {
     template <class edge>
     struct edge_trait;
 
+    template <class fst1_type, class fst2_type>
+    struct pair_fst {
+
+        using vertex = std::tuple<typename fst1_type::vertex, typename fst2_type::vertex>;
+        using edge = std::tuple<typename fst1_type::edge, typename fst2_type::edge>;
+        using input_symbol = typename fst1_type::input_symbol;
+        using output_symbol = typename fst2_type::output_symbol;
+
+        virtual std::vector<vertex> const& vertices() const = 0;
+        virtual std::vector<vertex> const& edges() const = 0;
+        virtual vertex tail(edge e) const = 0;
+        virtual vertex head(edge e) const = 0;
+        virtual std::vector<edge> const& in_edges(vertex v) const = 0;
+        virtual std::vector<edge> const& out_edges(vertex v) const = 0;
+        virtual std::vector<vertex> const& initials() const = 0;
+        virtual std::vector<vertex> const& finals() const = 0;
+        virtual double weight(edge e) const = 0;
+        virtual input_symbol const& input(edge e) const = 0;
+        virtual output_symbol const& output(edge e) const = 0;
+
+        virtual fst1_type& fst1() = 0;
+        virtual fst1_type const& fst1() const = 0;
+        virtual fst2_type& fst2() = 0;
+        virtual fst2_type const& fst2() const = 0;
+
+    };
+
+    template <class fst1_type, class fst2_type>
+    struct lazy_pair_fst
+        : public pair_fst<fst1_type, fst2_type> {
+
+        fst1_type fst1_;
+        fst2_type fst2_;
+
+        using typename pair_fst<fst1_type, fst2_type>::vertex;
+        using typename pair_fst<fst1_type, fst2_type>::edge;
+        using typename pair_fst<fst1_type, fst2_type>::input_symbol;
+        using typename pair_fst<fst1_type, fst2_type>::output_symbol;
+
+        mutable std::shared_ptr<std::vector<vertex>> vertices_cache;
+        mutable std::shared_ptr<std::vector<edge>> edges_cache;
+        mutable std::shared_ptr<std::vector<vertex>> initials_cache;
+        mutable std::shared_ptr<std::vector<vertex>> finals_cache;
+        mutable std::shared_ptr<vertex> in_edges_vertex;
+        mutable std::shared_ptr<std::vector<edge>> in_edges_cache;
+        mutable std::shared_ptr<vertex> out_edges_vertex;
+        mutable std::shared_ptr<std::vector<edge>> out_edges_cache;
+
+        lazy_pair_fst(fst1_type fst1, fst2_type fst2);
+
+        virtual std::vector<vertex> const& vertices() const override;
+        virtual std::vector<edge> const& edges() const override;
+        virtual vertex tail(edge e) const override;
+        virtual vertex head(edge e) const override;
+        virtual std::vector<edge> const& in_edges(vertex v) const override;
+        virtual std::vector<edge> const& out_edges(vertex v) const override;
+        virtual std::vector<vertex> const& initials() const override;
+        virtual std::vector<vertex> const& finals() const override;
+        virtual double weight(edge e) const override;
+        virtual input_symbol const& input(edge e) const override;
+        virtual output_symbol const& output(edge e) const override;
+
+        virtual fst1_type& fst1() override;
+        virtual fst1_type const& fst1() const override;
+        virtual fst2_type& fst2() override;
+        virtual fst2_type const& fst2() const override;
+
+    };
+
+    template <class fst1_type, class fst2_type>
+    struct lazy_pair_mode1_fst
+        : public lazy_pair_fst<fst1_type, fst2_type> {
+
+        using typename pair_fst<fst1_type, fst2_type>::vertex;
+        using typename pair_fst<fst1_type, fst2_type>::edge;
+        using typename pair_fst<fst1_type, fst2_type>::input_symbol;
+        using typename pair_fst<fst1_type, fst2_type>::output_symbol;
+
+        lazy_pair_mode1_fst(fst1_type fst1, fst2_type fst2);
+
+        virtual std::vector<edge> const& in_edges(vertex v) const override;
+        virtual std::vector<edge> const& out_edges(vertex v) const override;
+        
+    };
+
+    template <class fst1_type, class fst2_type>
+    struct lazy_pair_mode2_fst
+        : public lazy_pair_fst<fst1_type, fst2_type> {
+
+        using typename pair_fst<fst1_type, fst2_type>::vertex;
+        using typename pair_fst<fst1_type, fst2_type>::edge;
+        using typename pair_fst<fst1_type, fst2_type>::input_symbol;
+        using typename pair_fst<fst1_type, fst2_type>::output_symbol;
+
+        lazy_pair_mode2_fst(fst1_type fst1, fst2_type fst2);
+
+        virtual std::vector<edge> const& in_edges(vertex v) const override;
+        virtual std::vector<edge> const& out_edges(vertex v) const override;
+        
+    };
+
 }
+
+#include "fst/fst-impl.h"
 
 #endif

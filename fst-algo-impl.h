@@ -13,7 +13,7 @@ namespace fst {
 
         std::vector<typename fst::vertex> order;
 
-        for (auto& v: g.initials()) {
+        for (auto& v: f.initials()) {
             stack.push_back(std::make_pair(action_t::color_grey, v));
         }
 
@@ -440,6 +440,20 @@ namespace fst {
 
             extra[u] = s;
         }
+    }
+
+    template <class fst_type>
+    std::vector<typename fst_type::edge> shortest_path(fst_type const& f,
+        std::vector<typename fst_type::vertex> const& topo_order)
+    {
+        forward_one_best<fst_type> one_best;
+
+        for (auto& v: f.initials()) {
+            one_best.extra[v] = { edge_trait<typename fst_type::edge>::null, 0 };
+        }
+        one_best.merge(f, topo_order);
+
+        return one_best.best_path(f);
     }
 
 }
