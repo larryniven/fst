@@ -1,4 +1,4 @@
-CXXFLAGS += -I ../
+CXXFLAGS += -std=c++11 -I ../
 AR = gcc-ar
 
 obj = fst.o ifst.o
