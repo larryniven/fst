@@ -32,9 +32,11 @@ namespace fst {
         if (edges_cache == nullptr) {
             std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::vertex> edges;
 
-            for (auto& v1: fst1_.edges()) {
-                for (auto& v2: fst2_.edges()) {
-                    edges.push_back(std::make_tuple(v1, v2));
+            for (auto& e1: fst1_.edges()) {
+                for (auto& e2: fst2_.edges()) {
+                    if (fst1_.output(e1) == fst2_.input(e2)) {
+                        edges.push_back(std::make_tuple(e1, e2));
+                    }
                 }
             }
 
