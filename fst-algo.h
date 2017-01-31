@@ -98,6 +98,20 @@ namespace fst {
     std::vector<typename fst_type::edge> shortest_path(fst_type const& f,
         std::vector<typename fst_type::vertex> const& topo_order);
 
+    template <class fst_type>
+    struct beam_search {
+
+        using vertex = typename fst_type::vertex;
+        using edge = typename fst_type::edge;
+
+        std::vector<edge> retained_edges;
+
+        std::unordered_set<vertex> retained_vertices;
+
+        void merge(fst_type const& f, std::vector<vertex> const& order, double alpha);
+
+    };
+
 }
 
 #include "fst/fst-algo-impl.h"

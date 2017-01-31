@@ -456,5 +456,58 @@ namespace fst {
         return one_best.best_path(f);
     }
 
+    template <class fst_type>
+    void beam_search<fst_type>::merge(fst_type const& f,
+        std::vector<typename fst_type::vertex> const& order, double alpha)
+    {
+        for (auto& v: f.initials()) {
+            retained_vertices.insert(v);
+        }
+
+        for (auto& v: order) {
+            if (ebt::in(v, retained_vertices)) {
+                std::vector<std::tuple<typename fst_type::edge, double>> out;
+
+                double inf = std::numeric_limits<double>::infinity();
+
+                double min = inf;
+                typename fst_type::edge argmin = edge_trait<typename fst_type::edge>::null;
+
+                double max = -inf;
+                typename fst_type::edge argmax = edge_trait<typename fst_type::edge>::null;
+
+                for (auto& e: f.out_edges(v)) {
+                    double w = f.weight(e);
+
+                    out.push_back(std::make_tuple(e, w));
+
+                    if (w > max) {
+                        max = w;
+                        argmax = e;
+                    }
+
+                    if (w < min) {
+                        min = w;
+                        argmin = e;
+                    }
+                }
+
+                double cutoff = min + (max - min) * alpha;
+
+                for (auto& t: out) {
+                    typename fst_type::edge e;
+                    double weight;
+
+                    std::tie(e, weight) = t;
+
+                    if (weight > cutoff) {
+                        retained_edges.push_back(e);
+                        retained_vertices.insert(f.head(e));
+                    }
+                }
+            }
+        }
+    }
+
 }
 
