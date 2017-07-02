@@ -376,7 +376,7 @@ namespace fst {
         };
 
         for (auto& u: order) {
-#if OMP_MERGE
+#if OMP_SAFE
             double u_value = get_value(u);
 
             if (u_value == -inf) {
@@ -445,7 +445,7 @@ namespace fst {
         };
 
         for (auto& u: order) {
-#if OMP_MERGE 
+#if OMP_SAFE
             double u_value = get_value(u);
 
             if (u_value == -inf) {
