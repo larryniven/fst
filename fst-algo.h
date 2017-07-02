@@ -75,6 +75,8 @@ namespace fst {
 
         using vertex = typename fst::vertex;
         using edge = typename fst::edge;
+        using input_symbol = typename fst::input_symbol;
+        using output_symbol = typename fst::output_symbol;
 
         std::unordered_map<vertex, double> extra;
 
@@ -87,6 +89,8 @@ namespace fst {
 
         using vertex = typename fst::vertex;
         using edge = typename fst::edge;
+        using input_symbol = typename fst::input_symbol;
+        using output_symbol = typename fst::output_symbol;
 
         std::unordered_map<vertex, double> extra;
 

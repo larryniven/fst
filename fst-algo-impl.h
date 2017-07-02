@@ -75,7 +75,6 @@ namespace fst {
             std::vector<double> candidate_value;
             candidate_value.resize(edges.size());
 
-            #pragma omp parallel for
             for (int i = 0; i < edges.size(); ++i) {
                 typename fst::edge& e = edges[i];
                 typename fst::vertex v = f.tail(e);
@@ -158,7 +157,6 @@ namespace fst {
             std::vector<double> candidate_value;
             candidate_value.resize(edges.size());
 
-            #pragma omp parallel for
             for (int i = 0; i < edges.size(); ++i) {
                 typename fst::edge& e = edges[i];
                 typename fst::vertex v = f.head(e);
@@ -378,16 +376,42 @@ namespace fst {
         };
 
         for (auto& u: order) {
+#if OMP_MERGE
+            double u_value = get_value(u);
+
+            if (u_value == -inf) {
+                continue;
+            }
+
+            std::unordered_map<input_symbol, std::vector<edge>> const& map = f.out_edges_input_map(u);
+
+            for (auto& p: map) {
+
+                for (int i = 0; i < p.second.size(); ++i) {
+                    auto e = p.second[i];
+                    vertex v = f.head(e);
+                    double s = get_value(v);
+                    extra[v] = s;
+                }
+
+                #pragma omp parallel for
+                for (int i = 0; i < p.second.size(); ++i) {
+                    auto e = p.second[i];
+                    vertex v = f.head(e);
+                    double s = ebt::log_add(get_value(v), u_value + f.weight(e));
+                    extra.at(v) = s;
+                }
+            }
+#else
             double s = get_value(u);
 
             std::vector<edge> edges = f.in_edges(u);
             std::vector<double> candidate_value;
             candidate_value.resize(edges.size());
 
-            #pragma omp parallel for
             for (int i = 0; i < edges.size(); ++i) {
-                typename fst::edge& e = edges[i];
-                typename fst::vertex v = f.tail(e);
+                edge& e = edges[i];
+                vertex v = f.tail(e);
                 candidate_value[i] = get_value(v) + f.weight(e);
             }
 
@@ -398,6 +422,8 @@ namespace fst {
             }
 
             extra[u] = s;
+
+#endif
         }
     }
 
@@ -419,13 +445,39 @@ namespace fst {
         };
 
         for (auto& u: order) {
+#if OMP_MERGE 
+            double u_value = get_value(u);
+
+            if (u_value == -inf) {
+                continue;
+            }
+
+            std::unordered_map<input_symbol, std::vector<edge>> const& map = f.in_edges_input_map(u);
+
+            for (auto& p: map) {
+
+                for (int i = 0; i < p.second.size(); ++i) {
+                    auto e = p.second[i];
+                    vertex v = f.tail(e);
+                    double s = get_value(v);
+                    extra[v] = s;
+                }
+
+                #pragma omp parallel for
+                for (int i = 0; i < p.second.size(); ++i) {
+                    auto e = p.second[i];
+                    vertex v = f.tail(e);
+                    double s = ebt::log_add(get_value(v), u_value + f.weight(e));
+                    extra.at(v) = s;
+                }
+            }
+#else
             double s = get_value(u);
 
             std::vector<edge> edges = f.out_edges(u);
             std::vector<double> candidate_value;
             candidate_value.resize(edges.size());
 
-            #pragma omp parallel for
             for (int i = 0; i < edges.size(); ++i) {
                 typename fst::edge& e = edges[i];
                 typename fst::vertex v = f.head(e);
@@ -439,6 +491,7 @@ namespace fst {
             }
 
             extra[u] = s;
+#endif
         }
     }
 

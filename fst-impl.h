@@ -209,6 +209,124 @@ namespace fst {
     }
 
     template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_fst<fst1_type, fst2_type>::input_symbol,
+        std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_fst<fst1_type, fst2_type>::in_edges_input_map(
+        typename lazy_pair_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (in_edges_input_map_cache == nullptr || *in_edges_input_map_vertex != v) {
+            std::unordered_map<input_symbol, std::vector<edge>> in_edges_input_map;
+
+            auto edges1 = fst1_.in_edges(std::get<0>(v));
+            auto edges2 = fst2_.in_edges(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                for (auto& e2: edges2) {
+                    if (fst1_.output(e1) == fst2_.input(e2)) {
+                        auto e = std::make_tuple(e1, e2);
+                        in_edges_input_map[this->input(e)].push_back(e);
+                    }
+                }
+            }
+
+            in_edges_input_map_vertex = std::make_shared<vertex>(v);
+            in_edges_input_map_cache = std::make_shared<
+                std::unordered_map<input_symbol, std::vector<edge>>>(in_edges_input_map);
+        }
+
+        return *in_edges_input_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_fst<fst1_type, fst2_type>::output_symbol,
+        std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_fst<fst1_type, fst2_type>::in_edges_output_map(
+        typename lazy_pair_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (in_edges_output_map_cache == nullptr || *in_edges_output_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> in_edges_output_map;
+
+            auto edges1 = fst1_.in_edges(std::get<0>(v));
+            auto edges2 = fst2_.in_edges(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                for (auto& e2: edges2) {
+                    if (fst1_.output(e1) == fst2_.input(e2)) {
+                        auto e = std::make_tuple(e1, e2);
+                        in_edges_output_map[this->output(e)].push_back(e);
+                    }
+                }
+            }
+
+            in_edges_output_map_vertex = std::make_shared<vertex>(v);
+            in_edges_output_map_cache = std::make_shared<
+                std::unordered_map<output_symbol, std::vector<edge>>>(in_edges_output_map);
+        }
+
+        return *in_edges_output_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_fst<fst1_type, fst2_type>::input_symbol,
+        std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_fst<fst1_type, fst2_type>::out_edges_input_map(
+        typename lazy_pair_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (out_edges_input_map_cache == nullptr || *out_edges_input_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> out_edges_input_map;
+
+            auto edges1 = fst1_.out_edges(std::get<0>(v));
+            auto edges2 = fst2_.out_edges(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                for (auto& e2: edges2) {
+                    if (fst1_.output(e1) == fst2_.input(e2)) {
+                        auto e = std::make_tuple(e1, e2);
+                        out_edges_input_map[this->input(e)].push_back(e);
+                    }
+                }
+            }
+
+            out_edges_input_map_vertex = std::make_shared<vertex>(v);
+            out_edges_input_map_cache = std::make_shared<
+                std::unordered_map<input_symbol, std::vector<edge>>>(out_edges_input_map);
+        }
+
+        return *out_edges_input_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_fst<fst1_type, fst2_type>::output_symbol,
+        std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_fst<fst1_type, fst2_type>::out_edges_output_map(
+        typename lazy_pair_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (out_edges_output_map_cache == nullptr || *out_edges_output_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> out_edges_output_map;
+
+            auto edges1 = fst1_.out_edges(std::get<0>(v));
+            auto edges2 = fst2_.out_edges(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                for (auto& e2: edges2) {
+                    if (fst1_.output(e1) == fst2_.input(e2)) {
+                        auto e = std::make_tuple(e1, e2);
+                        out_edges_output_map[this->output(e)].push_back(e);
+                    }
+                }
+            }
+
+            out_edges_output_map_vertex = std::make_shared<vertex>(v);
+            out_edges_output_map_cache = std::make_shared<
+                std::unordered_map<output_symbol, std::vector<edge>>>(out_edges_output_map);
+        }
+
+        return *out_edges_output_map_cache;
+    }
+
+    // lazy_pair_mode1_fst
+
+    template <class fst1_type, class fst2_type>
     lazy_pair_mode1_fst<fst1_type, fst2_type>::lazy_pair_mode1_fst(fst1_type fst1, fst2_type fst2)
         : lazy_pair_fst<fst1_type, fst2_type>(fst1, fst2)
     {}
@@ -276,6 +394,146 @@ namespace fst {
     }
 
     template <class fst1_type, class fst2_type>
+    std::vector<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::edge> const&
+    lazy_pair_mode1_fst<fst1_type, fst2_type>::edges() const
+    {
+        if (this->edges_cache == nullptr) {
+            this->edges_cache = std::make_shared<std::vector<edge>>(std::vector<edge>{});
+
+            for (auto& v: this->vertices()) {
+                auto outs = out_edges(v);
+                this->edges_cache->insert(this->edges_cache->end(), outs.begin(), outs.end());
+            }
+        }
+
+        return *this->edges_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::input_symbol,
+        std::vector<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode1_fst<fst1_type, fst2_type>::in_edges_input_map(
+        lazy_pair_mode1_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->in_edges_input_map_cache == nullptr || *this->in_edges_input_map_vertex != v) {
+            std::unordered_map<input_symbol, std::vector<edge>> in_edges_input_map;
+
+            auto edges1_map = this->fst1_.in_edges_output_map(std::get<0>(v));
+            auto edges2 = this->fst2_.in_edges(std::get<1>(v));
+
+            for (auto& e2: edges2) {
+                if (!ebt::in(this->fst2_.input(e2), edges1_map)) {
+                    continue;
+                }
+
+                for (auto& e1: edges1_map.at(this->fst2_.input(e2))) {
+                    auto e = std::make_tuple(e1, e2);
+                    in_edges_input_map[this->input(e)].push_back(e);
+                }
+            }
+
+            this->in_edges_input_map_vertex = std::make_shared<vertex>(v);
+            this->in_edges_input_map_cache = std::make_shared<
+                std::unordered_map<input_symbol, std::vector<edge>>>(in_edges_input_map);
+        }
+
+        return *this->in_edges_input_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::output_symbol,
+        std::vector<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode1_fst<fst1_type, fst2_type>::in_edges_output_map(
+        lazy_pair_mode1_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->in_edges_output_map_cache == nullptr || *this->in_edges_output_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> in_edges_output_map;
+
+            auto edges1_map = this->fst1_.in_edges_output_map(std::get<0>(v));
+            auto edges2 = this->fst2_.in_edges(std::get<1>(v));
+
+            for (auto& e2: edges2) {
+                if (!ebt::in(this->fst2_.input(e2), edges1_map)) {
+                    continue;
+                }
+
+                for (auto& e1: edges1_map.at(this->fst2_.input(e2))) {
+                    auto e = std::make_tuple(e1, e2);
+                    in_edges_output_map[this->output(e)].push_back(e);
+                }
+            }
+
+            this->in_edges_output_map_vertex = std::make_shared<vertex>(v);
+            this->in_edges_output_map_cache = std::make_shared<
+                std::unordered_map<output_symbol, std::vector<edge>>>(in_edges_output_map);
+        }
+
+        return *this->in_edges_output_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::input_symbol,
+        std::vector<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode1_fst<fst1_type, fst2_type>::out_edges_input_map(
+        typename lazy_pair_mode1_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->out_edges_input_map_cache == nullptr || *this->out_edges_input_map_vertex != v) {
+            std::unordered_map<input_symbol, std::vector<edge>> out_edges_input_map;
+
+            auto edges1_map = this->fst1_.out_edges_output_map(std::get<0>(v));
+            auto edges2 = this->fst2_.out_edges(std::get<1>(v));
+
+            for (auto& e2: edges2) {
+                if (!ebt::in(this->fst2_.input(e2), edges1_map)) {
+                    continue;
+                }
+
+                for (auto& e1: edges1_map.at(this->fst2_.input(e2))) {
+                    auto e = std::make_tuple(e1, e2);
+                    out_edges_input_map[this->input(e)].push_back(e);
+                }
+            }
+
+            this->out_edges_input_map_vertex = std::make_shared<vertex>(v);
+            this->out_edges_input_map_cache = std::make_shared<
+                std::unordered_map<input_symbol, std::vector<edge>>>(out_edges_input_map);
+        }
+
+        return *this->out_edges_input_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::output_symbol,
+        std::vector<typename lazy_pair_mode1_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode1_fst<fst1_type, fst2_type>::out_edges_output_map(
+        typename lazy_pair_mode1_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->out_edges_output_map_cache == nullptr || *this->out_edges_output_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> out_edges_output_map;
+
+            auto edges1_map = this->fst1_.out_edges_output_map(std::get<0>(v));
+            auto edges2 = this->fst2_.out_edges(std::get<1>(v));
+
+            for (auto& e2: edges2) {
+                if (!ebt::in(this->fst2_.input(e2), edges1_map)) {
+                    continue;
+                }
+
+                for (auto& e1: edges1_map.at(this->fst2_.input(e2))) {
+                    auto e = std::make_tuple(e1, e2);
+                    out_edges_output_map[this->output(e)].push_back(e);
+                }
+            }
+
+            this->out_edges_output_map_vertex = std::make_shared<vertex>(v);
+            this->out_edges_output_map_cache = std::make_shared<
+                std::unordered_map<output_symbol, std::vector<edge>>>(out_edges_output_map);
+        }
+
+        return *this->out_edges_output_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
     lazy_pair_mode2_fst<fst1_type, fst2_type>::lazy_pair_mode2_fst(fst1_type fst1, fst2_type fst2)
         : lazy_pair_fst<fst1_type, fst2_type>(fst1, fst2)
     {}
@@ -340,6 +598,146 @@ namespace fst {
         }
 
         return *this->out_edges_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::vector<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::edge> const&
+    lazy_pair_mode2_fst<fst1_type, fst2_type>::edges() const
+    {
+        if (this->edges_cache == nullptr) {
+            this->edges_cache = std::make_shared<std::vector<edge>>(std::vector<edge>());
+
+            for (auto& v: this->vertices()) {
+                auto outs = out_edges(v);
+                this->edges_cache->insert(this->edges_cache->end(), outs.begin(), outs.end());
+            }
+        }
+
+        return *this->edges_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::input_symbol,
+        std::vector<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode2_fst<fst1_type, fst2_type>::in_edges_input_map(
+        lazy_pair_mode2_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->in_edges_input_map_cache == nullptr || *this->in_edges_input_map_vertex != v) {
+            std::unordered_map<input_symbol, std::vector<edge>> in_edges_input_map;
+
+            auto edges1 = this->fst1_.in_edges(std::get<0>(v));
+            auto edges2_map = this->fst2_.in_edges_input_map(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                if (!ebt::in(this->fst1_.output(e1), edges2_map)) {
+                    continue;
+                }
+
+                for (auto& e2: edges2_map.at(this->fst1_.output(e1))) {
+                    auto e = std::make_tuple(e1, e2);
+                    in_edges_input_map[this->input(e)].push_back(e);
+                }
+            }
+
+            this->in_edges_input_map_vertex = std::make_shared<vertex>(v);
+            this->in_edges_input_map_cache = std::make_shared<
+                std::unordered_map<input_symbol, std::vector<edge>>>(in_edges_input_map);
+        }
+
+        return *this->in_edges_input_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::output_symbol,
+        std::vector<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode2_fst<fst1_type, fst2_type>::in_edges_output_map(
+        lazy_pair_mode2_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->in_edges_output_map_cache == nullptr || *this->in_edges_output_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> in_edges_output_map;
+
+            auto edges1 = this->fst1_.in_edges(std::get<0>(v));
+            auto edges2_map = this->fst2_.in_edges_input_map(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                if (!ebt::in(this->fst1_.output(e1), edges2_map)) {
+                    continue;
+                }
+
+                for (auto& e2: edges2_map.at(this->fst1_.output(e1))) {
+                    auto e = std::make_tuple(e1, e2);
+                    in_edges_output_map[this->output(e)].push_back(e);
+                }
+            }
+
+            this->in_edges_output_map_vertex = std::make_shared<vertex>(v);
+            this->in_edges_output_map_cache = std::make_shared<
+                std::unordered_map<output_symbol, std::vector<edge>>>(in_edges_output_map);
+        }
+
+        return *this->in_edges_output_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::input_symbol,
+        std::vector<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode2_fst<fst1_type, fst2_type>::out_edges_input_map(
+        typename lazy_pair_mode2_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->out_edges_input_map_cache == nullptr || *this->out_edges_input_map_vertex != v) {
+            std::unordered_map<input_symbol, std::vector<edge>> out_edges_input_map;
+
+            auto edges1 = this->fst1_.out_edges(std::get<0>(v));
+            auto edges2_map = this->fst2_.out_edges_input_map(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                if (!ebt::in(this->fst1_.output(e1), edges2_map)) {
+                    continue;
+                }
+
+                for (auto& e2: edges2_map.at(this->fst1_.output(e1))) {
+                    auto e = std::make_tuple(e1, e2);
+                    out_edges_input_map[this->input(e)].push_back(e);
+                }
+            }
+
+            this->out_edges_input_map_vertex = std::make_shared<vertex>(v);
+            this->out_edges_input_map_cache = std::make_shared<
+                std::unordered_map<input_symbol, std::vector<edge>>>(out_edges_input_map);
+        }
+
+        return *this->out_edges_input_map_cache;
+    }
+
+    template <class fst1_type, class fst2_type>
+    std::unordered_map<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::output_symbol,
+        std::vector<typename lazy_pair_mode2_fst<fst1_type, fst2_type>::edge>> const&
+    lazy_pair_mode2_fst<fst1_type, fst2_type>::out_edges_output_map(
+        typename lazy_pair_mode2_fst<fst1_type, fst2_type>::vertex v) const
+    {
+        if (this->out_edges_output_map_cache == nullptr || *this->out_edges_output_map_vertex != v) {
+            std::unordered_map<output_symbol, std::vector<edge>> out_edges_output_map;
+
+            auto edges1 = this->fst1_.out_edges(std::get<0>(v));
+            auto edges2_map = this->fst2_.out_edges_input_map(std::get<1>(v));
+
+            for (auto& e1: edges1) {
+                if (!ebt::in(this->fst1_.output(e1), edges2_map)) {
+                    continue;
+                }
+
+                for (auto& e2: edges2_map.at(this->fst1_.output(e1))) {
+                    auto e = std::make_tuple(e1, e2);
+                    out_edges_output_map[this->output(e)].push_back(e);
+                }
+            }
+
+            this->out_edges_output_map_vertex = std::make_shared<vertex>(v);
+            this->out_edges_output_map_cache = std::make_shared<
+                std::unordered_map<output_symbol, std::vector<edge>>>(out_edges_output_map);
+        }
+
+        return *this->out_edges_output_map_cache;
     }
 
 }
