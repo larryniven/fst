@@ -510,56 +510,157 @@ namespace fst {
     }
 
     template <class fst_type>
-    void beam_search<fst_type>::merge(fst_type const& f,
-        std::vector<typename fst_type::vertex> const& order, double alpha)
+    void beam_prune<fst_type>::merge(fst_type const& f,
+        std::vector<typename fst_type::vertex> const& order,
+        double alpha, int min_edges)
     {
         for (auto& v: f.initials()) {
-            retained_vertices.insert(v);
+            extra[v] = 0;
         }
 
+        double inf = std::numeric_limits<double>::infinity();
+
         for (auto& v: order) {
-            if (ebt::in(v, retained_vertices)) {
-                std::vector<std::tuple<typename fst_type::edge, double>> out;
+            double min = inf;
+            vertex argmin = edge_trait<typename fst_type::edge>::null;
 
-                double inf = std::numeric_limits<double>::infinity();
+            double max = -inf;
+            vertex argmax = edge_trait<typename fst_type::edge>::null;
 
-                double min = inf;
-                typename fst_type::edge argmin = edge_trait<typename fst_type::edge>::null;
+            double cutoff = -inf;
 
-                double max = -inf;
-                typename fst_type::edge argmax = edge_trait<typename fst_type::edge>::null;
+            auto edges = f.in_edges(v);
 
-                for (auto& e: f.out_edges(v)) {
-                    double w = f.weight(e);
+            if (edges.size() >= min_edges) {
+                for (auto& e: edges) {
+                    double d = extra.at(f.tail(e));
 
-                    out.push_back(std::make_tuple(e, w));
-
-                    if (w > max) {
-                        max = w;
-                        argmax = e;
+                    if (d > max) {
+                        max = d;
+                        argmax = f.tail(e);
                     }
 
-                    if (w < min) {
-                        min = w;
-                        argmin = e;
+                    if (d < min) {
+                        min = d;
+                        argmin = f.tail(e);
                     }
                 }
 
-                double cutoff = min + (max - min) * alpha;
+                cutoff = min + (max - min) * alpha;
+            }
 
-                for (auto& t: out) {
-                    typename fst_type::edge e;
-                    double weight;
+            for (auto& e: edges) {
+                double d = extra.at(f.tail(e));
 
-                    std::tie(e, weight) = t;
+                if (d > cutoff) {
+                    retained_edges.push_back(e);
 
-                    if (weight > cutoff) {
-                        retained_edges.push_back(e);
-                        retained_vertices.insert(f.head(e));
+                    double candidate = d + f.weight(e);
+
+                    if (ebt::in(v, extra)) {
+                        if (extra[v] < d + f.weight(e)) {
+                            extra[v] = d + f.weight(e);
+                        }
+                    } else {
+                        extra[v] = d + f.weight(e);
                     }
                 }
             }
         }
+    }
+
+    template <class fst_type>
+    void beam_search<fst_type>::merge(fst_type const& f,
+        std::vector<typename fst_type::vertex> const& order,
+        double alpha, int min_edges)
+    {
+        double inf = std::numeric_limits<double>::infinity();
+
+        for (auto& v: order) {
+            double min = inf;
+            vertex argmin = edge_trait<typename fst_type::edge>::null;
+
+            double max = -inf;
+            vertex argmax = edge_trait<typename fst_type::edge>::null;
+
+            double cutoff = -inf;
+
+            auto edges = f.in_edges(v);
+
+            if (edges.size() >= min_edges) {
+                for (auto& e: edges) {
+                    double d = extra.at(f.tail(e)).value;
+
+                    if (d > max) {
+                        max = d;
+                        argmax = f.tail(e);
+                    }
+
+                    if (d < min) {
+                        min = d;
+                        argmin = f.tail(e);
+                    }
+                }
+
+                cutoff = min + (max - min) * alpha;
+            }
+
+            for (auto& e: edges) {
+                double d = extra.at(f.tail(e)).value;
+
+                if (d > cutoff) {
+                    double candidate = d + f.weight(e);
+
+                    if (ebt::in(v, extra)) {
+                        if (extra[v].value < d + f.weight(e)) {
+                            extra[v].value = d + f.weight(e);
+                            extra[v].pi = e;
+                            
+                        }
+                    } else {
+                        extra[v].value = d + f.weight(e);
+                        extra[v].pi = e;
+                    }
+                }
+            }
+        }
+    }
+
+    template <class fst_type>
+    std::vector<typename fst_type::edge> beam_search<fst_type>::best_path(fst_type const& f)
+    {
+        double inf = std::numeric_limits<double>::infinity();
+        double max = -inf;
+        vertex argmax;
+
+        for (auto v: f.finals()) {
+            if (ebt::in(v, extra) && extra.at(v).value > max) {
+                max = extra.at(v).value;
+                argmax = v;
+            }
+        }
+
+        std::vector<edge> result;
+
+        if (max == -inf) {
+            return result;
+        }
+
+        vertex u = argmax;
+
+        std::vector<vertex> const& initials = f.initials();
+        std::unordered_set<vertex> initial_set { initials.begin(), initials.end() };
+
+        while (!ebt::in(u, initial_set)) {
+            edge e = extra.at(u).pi;
+            vertex v = f.tail(e);
+            result.push_back(e);
+            u = v;
+        }
+
+        std::reverse(result.begin(), result.end());
+
+        return result;
     }
 
 }

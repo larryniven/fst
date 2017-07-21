@@ -103,17 +103,37 @@ namespace fst {
         std::vector<typename fst_type::vertex> const& topo_order);
 
     template <class fst_type>
-    struct beam_search {
+    struct beam_prune {
 
         using vertex = typename fst_type::vertex;
         using edge = typename fst_type::edge;
 
         std::vector<edge> retained_edges;
 
-        std::unordered_set<vertex> retained_vertices;
+        std::unordered_map<vertex, double> extra;
 
-        void merge(fst_type const& f, std::vector<vertex> const& order, double alpha);
+        void merge(fst_type const& f, std::vector<vertex> const& order,
+            double alpha, int min_edges);
 
+    };
+
+    template <class fst_type>
+    struct beam_search {
+
+        using vertex = typename fst_type::vertex;
+        using edge = typename fst_type::edge;
+
+        struct extra_data {
+            edge pi;
+            double value;
+        };
+
+        std::unordered_map<vertex, extra_data> extra;
+
+        void merge(fst_type const& f, std::vector<vertex> const& order,
+            double alpha, int min_edges);
+
+        std::vector<edge> best_path(fst_type const& f);
     };
 
 }
