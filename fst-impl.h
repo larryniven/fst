@@ -19,7 +19,7 @@ namespace fst {
             }
 
             vertices_cache = std::make_shared<std::vector<
-                typename lazy_pair_fst<fst1_type, fst2_type>::vertex>>(vertices);
+                typename lazy_pair_fst<fst1_type, fst2_type>::vertex>>(std::move(vertices));
         }
 
         return *vertices_cache;
@@ -41,7 +41,7 @@ namespace fst {
             }
 
             edges_cache = std::make_shared<std::vector<
-                typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(edges);
+                typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(std::move(edges));
         }
 
         return *edges_cache;
@@ -86,7 +86,7 @@ namespace fst {
                 typename lazy_pair_fst<fst1_type, fst2_type>::vertex>(v);
 
             in_edges_cache = std::make_shared<
-                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(in_edges);
+                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(std::move(in_edges));
         }
 
         return *in_edges_cache;
@@ -115,7 +115,7 @@ namespace fst {
                 typename lazy_pair_fst<fst1_type, fst2_type>::vertex>(v);
 
             out_edges_cache = std::make_shared<
-                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(out_edges);
+                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(std::move(out_edges));
         }
 
         return *out_edges_cache;
@@ -563,7 +563,7 @@ namespace fst {
                 typename lazy_pair_fst<fst1_type, fst2_type>::vertex>(v);
 
             this->in_edges_cache = std::make_shared<
-                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(in_edges);
+                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(std::move(in_edges));
         }
 
         return *this->in_edges_cache;
@@ -594,7 +594,7 @@ namespace fst {
                 typename lazy_pair_fst<fst1_type, fst2_type>::vertex>(v);
 
             this->out_edges_cache = std::make_shared<
-                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(out_edges);
+                std::vector<typename lazy_pair_fst<fst1_type, fst2_type>::edge>>(std::move(out_edges));
         }
 
         return *this->out_edges_cache;
@@ -641,7 +641,7 @@ namespace fst {
 
             this->in_edges_input_map_vertex = std::make_shared<vertex>(v);
             this->in_edges_input_map_cache = std::make_shared<
-                std::unordered_map<input_symbol, std::vector<edge>>>(in_edges_input_map);
+                std::unordered_map<input_symbol, std::vector<edge>>>(std::move(in_edges_input_map));
         }
 
         return *this->in_edges_input_map_cache;
@@ -672,7 +672,7 @@ namespace fst {
 
             this->in_edges_output_map_vertex = std::make_shared<vertex>(v);
             this->in_edges_output_map_cache = std::make_shared<
-                std::unordered_map<output_symbol, std::vector<edge>>>(in_edges_output_map);
+                std::unordered_map<output_symbol, std::vector<edge>>>(std::move(in_edges_output_map));
         }
 
         return *this->in_edges_output_map_cache;
@@ -703,7 +703,7 @@ namespace fst {
 
             this->out_edges_input_map_vertex = std::make_shared<vertex>(v);
             this->out_edges_input_map_cache = std::make_shared<
-                std::unordered_map<input_symbol, std::vector<edge>>>(out_edges_input_map);
+                std::unordered_map<input_symbol, std::vector<edge>>>(std::move(out_edges_input_map));
         }
 
         return *this->out_edges_input_map_cache;
@@ -734,7 +734,7 @@ namespace fst {
 
             this->out_edges_output_map_vertex = std::make_shared<vertex>(v);
             this->out_edges_output_map_cache = std::make_shared<
-                std::unordered_map<output_symbol, std::vector<edge>>>(out_edges_output_map);
+                std::unordered_map<output_symbol, std::vector<edge>>>(std::move(out_edges_output_map));
         }
 
         return *this->out_edges_output_map_cache;
